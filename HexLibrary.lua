@@ -25,7 +25,7 @@ local HexLib = {
         }
     },
     CurrentTheme = nil,
-    LogoId = "rbxassetid://130021749368779"
+    LogoId = "rbxassetid://86138979087018"
 }
 
 HexLib.CurrentTheme = HexLib.Themes.BlackRed
@@ -171,7 +171,7 @@ function HexLib:CreateWindow(config)
     local TitleText = config.Title or "Hex Scripts"
     local SubTitleText = config.SubTitle or "v1.0.0"
 
-    -- Screen Blur & Intro Sequence with Correct Logo ID
+    -- Screen Blur & Intro Sequence with Updated Logo ID
     local Blur = Instance.new("BlurEffect")
     Blur.Size = 0
     Blur.Parent = Lighting
@@ -227,7 +227,7 @@ function HexLib:CreateWindow(config)
 
     -- Main Frame Setup
     local CenterPosition = UDim2.new(0.5, -360, 0.5, -230)
-    local ClosedPosition = UDim2.new(0.5, -360, 1.2, 0) -- Hidden off-screen below
+    local ClosedPosition = UDim2.new(0.5, -360, 1.2, 0)
 
     local MainFrame = Instance.new("Frame")
     MainFrame.Size = UDim2.new(0, 720, 0, 460)
@@ -257,12 +257,12 @@ function HexLib:CreateWindow(config)
         end
     end)
 
-    -- Floating Open/Toggle Button (Bottom Left Corner)
+    -- Floating Open/Toggle Button
     local OpenBtn = Instance.new("ImageButton")
     OpenBtn.Name = "HexToggleBtn"
     OpenBtn.Image = HexLib.LogoId
     OpenBtn.Size = UDim2.new(0, 46, 0, 46)
-    OpenBtn.Position = UDim2.new(0, 20, 1, 100) -- Initially hidden off bottom
+    OpenBtn.Position = UDim2.new(0, 20, 1, 100)
     OpenBtn.BackgroundColor3 = HexLib.CurrentTheme.Container
     OpenBtn.Parent = Gui
     Instance.new("UICorner", OpenBtn).CornerRadius = UDim.new(1, 0)
@@ -272,17 +272,14 @@ function HexLib:CreateWindow(config)
     OpenStroke.Thickness = 2
     OpenStroke.Parent = OpenBtn
 
-    -- Window Toggle Handler
     local isOpen = true
     local function ToggleWindow(state)
         isOpen = (state ~= nil) and state or not isOpen
         if isOpen then
-            -- Open Window (Tween in from bottom)
             PlaySound(6895079853, 1.1)
             TweenService:Create(OpenBtn, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0, 20, 1, 100)}):Play()
             TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = CenterPosition}):Play()
         else
-            -- Close Window (Tween down off-screen)
             PlaySound(6895079853, 0.9)
             TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Position = ClosedPosition}):Play()
             TweenService:Create(OpenBtn, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = UDim2.new(0, 20, 1, -66)}):Play()
