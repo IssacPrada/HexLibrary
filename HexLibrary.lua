@@ -10,6 +10,8 @@ local Lighting = game:GetService("Lighting")
 local SoundService = game:GetService("SoundService")
 local Players = game:GetService("Players")
 
+local LocalPlayer = Players.LocalPlayer
+
 local HexLib = {
     Themes = {
         BlackRed = {
@@ -25,7 +27,7 @@ local HexLib = {
         }
     },
     CurrentTheme = nil,
-    LogoId = "rbxassetid://86138979087018"
+    LogoId = "rbxthumb://type=Asset&id=86138979087018&w=420&h=420"
 }
 
 HexLib.CurrentTheme = HexLib.Themes.BlackRed
@@ -38,6 +40,41 @@ local function PlaySound(id, pitch)
     sound.Parent = SoundService
     sound:Play()
     sound.Ended:Connect(function() sound:Destroy() end)
+end
+
+-- Smooth Dragging System Utility
+local function MakeDraggable(gui, handle)
+    local dragging, dragInput, dragStart, startPos
+    handle = handle or gui
+
+    handle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = gui.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    handle.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            TweenService:Create(gui, TweenInfo.new(0.08, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+                Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+            }):Play()
+        end
+    end)
 end
 
 -- Notification Toast Function
@@ -116,6 +153,8 @@ function HexLib:KeySystem(validKeys, onSuccess)
     Frame.Parent = KeyGui
     Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 12)
 
+    MakeDraggable(Frame)
+
     local Title = Instance.new("TextLabel")
     Title.Text = "Hex Scripts - Key Verification"
     Title.Size = UDim2.new(1, 0, 0, 45)
@@ -171,7 +210,7 @@ function HexLib:CreateWindow(config)
     local TitleText = config.Title or "Hex Scripts"
     local SubTitleText = config.SubTitle or "v1.0.0"
 
-    -- Screen Blur & Intro Sequence with Updated Logo ID
+    -- Screen Blur & Intro Sequence
     local Blur = Instance.new("BlurEffect")
     Blur.Size = 0
     Blur.Parent = Lighting
@@ -222,23 +261,19 @@ function HexLib:CreateWindow(config)
     IntroFrame:Destroy()
     Blur:Destroy()
 
-    -- Trigger Loaded Toast Notification
-    HexLib:Notify("Loaded " .. TitleText, "Welcome back, " .. Players.LocalPlayer.Name .. "!", 5)
+    HexLib:Notify("Loaded " .. TitleText, "Welcome back, " .. LocalPlayer.Name .. "!", 5)
 
     -- Main Frame Setup
-    local CenterPosition = UDim2.new(0.5, -360, 0.5, -230)
-    local ClosedPosition = UDim2.new(0.5, -360, 1.2, 0)
-
     local MainFrame = Instance.new("Frame")
     MainFrame.Size = UDim2.new(0, 720, 0, 460)
-    MainFrame.Position = CenterPosition
+    MainFrame.Position = UDim2.new(0.5, -360, 0.5, -230)
     MainFrame.BackgroundColor3 = HexLib.CurrentTheme.Background
     MainFrame.BorderSizePixel = 0
     MainFrame.ClipsDescendants = true
     MainFrame.Parent = Gui
     Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
 
-    -- Ambient Black and Red Gradient Transition
+    -- Ambient Black/Red Gradient
     local AmbientGradient = Instance.new("UIGradient")
     AmbientGradient.Color = ColorSequence.new({
         ColorSequenceKeypoint.new(0, HexLib.CurrentTheme.GradientStart),
@@ -257,32 +292,36 @@ function HexLib:CreateWindow(config)
         end
     end)
 
-    -- Floating Open/Toggle Button
+    -- Floating Toggle Button
     local OpenBtn = Instance.new("ImageButton")
     OpenBtn.Name = "HexToggleBtn"
     OpenBtn.Image = HexLib.LogoId
-    OpenBtn.Size = UDim2.new(0, 46, 0, 46)
+    OpenBtn.Size = UDim2.new(0, 48, 0, 48)
     OpenBtn.Position = UDim2.new(0, 20, 1, 100)
     OpenBtn.BackgroundColor3 = HexLib.CurrentTheme.Container
     OpenBtn.Parent = Gui
     Instance.new("UICorner", OpenBtn).CornerRadius = UDim.new(1, 0)
+    MakeDraggable(OpenBtn)
     
     local OpenStroke = Instance.new("UIStroke")
     OpenStroke.Color = HexLib.CurrentTheme.Accent
     OpenStroke.Thickness = 2
     OpenStroke.Parent = OpenBtn
 
+    local savedPos = MainFrame.Position
     local isOpen = true
+
     local function ToggleWindow(state)
         isOpen = (state ~= nil) and state or not isOpen
         if isOpen then
             PlaySound(6895079853, 1.1)
             TweenService:Create(OpenBtn, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0, 20, 1, 100)}):Play()
-            TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = CenterPosition}):Play()
+            TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = savedPos}):Play()
         else
+            savedPos = MainFrame.Position
             PlaySound(6895079853, 0.9)
-            TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Position = ClosedPosition}):Play()
-            TweenService:Create(OpenBtn, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = UDim2.new(0, 20, 1, -66)}):Play()
+            TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Position = UDim2.new(savedPos.X.Scale, savedPos.X.Offset, 1.2, 0)}):Play()
+            TweenService:Create(OpenBtn, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = UDim2.new(0, 20, 1, -68)}):Play()
         end
     end
 
@@ -290,11 +329,12 @@ function HexLib:CreateWindow(config)
         ToggleWindow(true)
     end)
 
-    -- Top Window Bar
+    -- Top Drag Bar
     local TopBar = Instance.new("Frame")
-    TopBar.Size = UDim2.new(1, 0, 0, 36)
+    TopBar.Size = UDim2.new(1, 0, 0, 38)
     TopBar.BackgroundTransparency = 1
     TopBar.Parent = MainFrame
+    MakeDraggable(MainFrame, TopBar)
 
     local CloseBtn = Instance.new("TextButton")
     CloseBtn.Text = "×"
@@ -318,22 +358,30 @@ function HexLib:CreateWindow(config)
     Sidebar.BorderSizePixel = 0
     Sidebar.Parent = MainFrame
     Instance.new("UICorner", Sidebar).CornerRadius = UDim.new(0, 12)
+    MakeDraggable(MainFrame, Sidebar)
+
+    local SidebarLogo = Instance.new("ImageLabel")
+    SidebarLogo.Image = HexLib.LogoId
+    SidebarLogo.Size = UDim2.new(0, 28, 0, 28)
+    SidebarLogo.Position = UDim2.new(0, 14, 0, 14)
+    SidebarLogo.BackgroundTransparency = 1
+    SidebarLogo.Parent = Sidebar
 
     local TitleLabel = Instance.new("TextLabel")
     TitleLabel.Text = TitleText
-    TitleLabel.Size = UDim2.new(0, 150, 0, 20)
-    TitleLabel.Position = UDim2.new(0, 16, 0, 16)
+    TitleLabel.Size = UDim2.new(0, 130, 0, 18)
+    TitleLabel.Position = UDim2.new(0, 50, 0, 12)
     TitleLabel.TextColor3 = HexLib.CurrentTheme.TextPrimary
     TitleLabel.Font = Enum.Font.SourceSansBold
-    TitleLabel.TextSize = 16
+    TitleLabel.TextSize = 15
     TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
     TitleLabel.BackgroundTransparency = 1
     TitleLabel.Parent = Sidebar
 
     local SubTitleLabel = Instance.new("TextLabel")
     SubTitleLabel.Text = SubTitleText
-    SubTitleLabel.Size = UDim2.new(0, 150, 0, 15)
-    SubTitleLabel.Position = UDim2.new(0, 16, 0, 34)
+    SubTitleLabel.Size = UDim2.new(0, 130, 0, 14)
+    SubTitleLabel.Position = UDim2.new(0, 50, 0, 30)
     SubTitleLabel.TextColor3 = HexLib.CurrentTheme.TextSecondary
     SubTitleLabel.Font = Enum.Font.SourceSans
     SubTitleLabel.TextSize = 12
@@ -341,36 +389,47 @@ function HexLib:CreateWindow(config)
     SubTitleLabel.BackgroundTransparency = 1
     SubTitleLabel.Parent = Sidebar
 
-    -- User Profile Pill at Bottom of Sidebar
-    local UserPill = Instance.new("Frame")
-    UserPill.Size = UDim2.new(1, -24, 0, 44)
-    UserPill.Position = UDim2.new(0, 12, 1, -56)
-    UserPill.BackgroundColor3 = HexLib.CurrentTheme.Container
-    UserPill.Parent = Sidebar
-    Instance.new("UICorner", UserPill).CornerRadius = UDim.new(0, 8)
+    -- User Profile Card (Matches Image 1 layout)
+    local UserCard = Instance.new("Frame")
+    UserCard.Size = UDim2.new(1, -20, 0, 54)
+    UserCard.Position = UDim2.new(0, 10, 1, -64)
+    UserCard.BackgroundColor3 = HexLib.CurrentTheme.Container
+    UserCard.Parent = Sidebar
+    Instance.new("UICorner", UserCard).CornerRadius = UDim.new(0, 8)
 
     local AvatarImg = Instance.new("ImageLabel")
-    AvatarImg.Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size42x42)
-    AvatarImg.Size = UDim2.new(0, 30, 0, 30)
-    AvatarImg.Position = UDim2.new(0, 7, 0.5, -15)
+    AvatarImg.Image = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size42x42)
+    AvatarImg.Size = UDim2.new(0, 36, 0, 36)
+    AvatarImg.Position = UDim2.new(0, 9, 0.5, -18)
     AvatarImg.BackgroundTransparency = 1
-    AvatarImg.Parent = UserPill
+    AvatarImg.Parent = UserCard
     Instance.new("UICorner", AvatarImg).CornerRadius = UDim.new(1, 0)
 
-    local UserLabel = Instance.new("TextLabel")
-    UserLabel.Text = Players.LocalPlayer.Name
-    UserLabel.Size = UDim2.new(1, -45, 1, 0)
-    UserLabel.Position = UDim2.new(0, 42, 0, 0)
-    UserLabel.TextColor3 = HexLib.CurrentTheme.TextPrimary
-    UserLabel.Font = Enum.Font.SourceSansBold
-    UserLabel.TextSize = 13
-    UserLabel.TextXAlignment = Enum.TextXAlignment.Left
-    UserLabel.BackgroundTransparency = 1
-    UserLabel.Parent = UserPill
+    local DisplayNameLabel = Instance.new("TextLabel")
+    DisplayNameLabel.Text = LocalPlayer.DisplayName
+    DisplayNameLabel.Size = UDim2.new(1, -54, 0, 18)
+    DisplayNameLabel.Position = UDim2.new(0, 52, 0, 10)
+    DisplayNameLabel.TextColor3 = HexLib.CurrentTheme.TextPrimary
+    DisplayNameLabel.Font = Enum.Font.SourceSansBold
+    DisplayNameLabel.TextSize = 13
+    DisplayNameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    DisplayNameLabel.BackgroundTransparency = 1
+    DisplayNameLabel.Parent = UserCard
+
+    local UsernameLabel = Instance.new("TextLabel")
+    UsernameLabel.Text = "@" .. LocalPlayer.Name
+    UsernameLabel.Size = UDim2.new(1, -54, 0, 14)
+    UsernameLabel.Position = UDim2.new(0, 52, 0, 28)
+    UsernameLabel.TextColor3 = HexLib.CurrentTheme.TextSecondary
+    UsernameLabel.Font = Enum.Font.SourceSans
+    UsernameLabel.TextSize = 11
+    UsernameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    UsernameLabel.BackgroundTransparency = 1
+    UsernameLabel.Parent = UserCard
 
     local TabHolder = Instance.new("ScrollingFrame")
-    TabHolder.Size = UDim2.new(1, -20, 1, -125)
-    TabHolder.Position = UDim2.new(0, 10, 0, 60)
+    TabHolder.Size = UDim2.new(1, -20, 1, -135)
+    TabHolder.Position = UDim2.new(0, 10, 0, 58)
     TabHolder.BackgroundTransparency = 1
     TabHolder.ScrollBarThickness = 2
     TabHolder.Parent = Sidebar
