@@ -1,6 +1,6 @@
 --[[
     Hex Scripts UI Library
-    Inspired by Fluent / Kavo UI design with modern dark layout and smooth animations.
+    Author: IssacPrada (Issac Mckenney)
 --]]
 
 local TweenService = game:GetService("TweenService")
@@ -40,7 +40,6 @@ local HexLib = {
 
 HexLib.CurrentTheme = HexLib.Themes.DarkRed
 
--- Sound Helper Function
 local function PlaySound(id, pitch)
     local sound = Instance.new("Sound")
     sound.SoundId = "rbxassetid://" .. tostring(id)
@@ -51,7 +50,6 @@ local function PlaySound(id, pitch)
     sound.Ended:Connect(function() sound:Destroy() end)
 end
 
--- Key System Window
 function HexLib:KeySystem(validKeys, onSuccess)
     local KeyGui = Instance.new("ScreenGui")
     KeyGui.Name = "HexKeySystem"
@@ -62,8 +60,8 @@ function HexLib:KeySystem(validKeys, onSuccess)
     Blur.Parent = Lighting
 
     local Frame = Instance.new("Frame")
-    Frame.Size = UDim2.new(0, 360, 0, 220)
-    Frame.Position = UDim2.new(0.5, -180, 0.5, -110)
+    Frame.Size = UDim2.new(0, 380, 0, 230)
+    Frame.Position = UDim2.new(0.5, -190, 0.5, -115)
     Frame.BackgroundColor3 = HexLib.CurrentTheme.Container
     Frame.BorderSizePixel = 0
     Frame.Parent = KeyGui
@@ -71,7 +69,7 @@ function HexLib:KeySystem(validKeys, onSuccess)
 
     local Title = Instance.new("TextLabel")
     Title.Text = "Hex Scripts - Key Verification"
-    Title.Size = UDim2.new(1, 0, 0, 40)
+    Title.Size = UDim2.new(1, 0, 0, 45)
     Title.TextColor3 = HexLib.CurrentTheme.TextPrimary
     Title.Font = Enum.Font.SourceSansBold
     Title.TextSize = 18
@@ -80,7 +78,7 @@ function HexLib:KeySystem(validKeys, onSuccess)
 
     local TextBox = Instance.new("TextBox")
     TextBox.PlaceholderText = "Enter Access Key..."
-    TextBox.Size = UDim2.new(0.85, 0, 0, 40)
+    TextBox.Size = UDim2.new(0.85, 0, 0, 42)
     TextBox.Position = UDim2.new(0.075, 0, 0.3, 0)
     TextBox.BackgroundColor3 = HexLib.CurrentTheme.Card
     TextBox.TextColor3 = HexLib.CurrentTheme.TextPrimary
@@ -91,8 +89,8 @@ function HexLib:KeySystem(validKeys, onSuccess)
     Instance.new("UICorner", TextBox).CornerRadius = UDim.new(0, 8)
 
     local SubmitBtn = Instance.new("TextButton")
-    SubmitBtn.Text = "Submit Key"
-    SubmitBtn.Size = UDim2.new(0.85, 0, 0, 40)
+    SubmitBtn.Text = "Verify Key"
+    SubmitBtn.Size = UDim2.new(0.85, 0, 0, 42)
     SubmitBtn.Position = UDim2.new(0.075, 0, 0.62, 0)
     SubmitBtn.BackgroundColor3 = HexLib.CurrentTheme.Accent
     SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -102,7 +100,7 @@ function HexLib:KeySystem(validKeys, onSuccess)
     Instance.new("UICorner", SubmitBtn).CornerRadius = UDim.new(0, 8)
 
     SubmitBtn.MouseButton1Click:Connect(function()
-        PlaySound(6895079853, 1.1) -- Click SFX
+        PlaySound(6895079853, 1.1)
         local input = TextBox.Text
         local valid = false
         for _, k in ipairs(validKeys) do
@@ -119,27 +117,24 @@ function HexLib:KeySystem(validKeys, onSuccess)
     end)
 end
 
--- Main Window Creator
 function HexLib:CreateWindow(config)
     config = config or {}
     local TitleText = config.Title or "Hex Scripts"
     local SubTitleText = config.SubTitle or "v1.0.0"
 
-    -- Screen Blur Setup
+    -- Screen Blur & Intro Sequence
     local Blur = Instance.new("BlurEffect")
     Blur.Size = 0
     Blur.Parent = Lighting
-    TweenService:Create(Blur, TweenInfo.new(0.8), {Size = 20}):Play()
+    TweenService:Create(Blur, TweenInfo.new(0.8), {Size = 22}):Play()
 
-    -- ScreenGui Setup
     local Gui = Instance.new("ScreenGui")
     Gui.Name = "HexWindowGui"
     Gui.Parent = CoreGui
 
-    -- Intro Sequence Container
     local IntroFrame = Instance.new("Frame")
-    IntroFrame.Size = UDim2.new(0, 200, 0, 200)
-    IntroFrame.Position = UDim2.new(0.5, -100, 0.5, -100)
+    IntroFrame.Size = UDim2.new(0, 220, 0, 220)
+    IntroFrame.Position = UDim2.new(0.5, -110, 0.5, -110)
     IntroFrame.BackgroundTransparency = 1
     IntroFrame.Parent = Gui
 
@@ -163,17 +158,14 @@ function HexLib:CreateWindow(config)
     IntroText.TextXAlignment = Enum.TextXAlignment.Left
     IntroText.Parent = IntroFrame
 
-    -- Intro Animation Sequence
-    PlaySound(9114223179, 1.0) -- Intro Swish SFX
+    PlaySound(9114223179, 1.0)
     TweenService:Create(Logo, TweenInfo.new(0.6, Enum.EasingStyle.Quart), {ImageTransparency = 0}):Play()
     task.wait(0.6)
     
-    -- Logo Swish to Left & Reveal Text
-    TweenService:Create(Logo, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -140, 0.5, -45)}):Play()
+    TweenService:Create(Logo, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -150, 0.5, -45)}):Play()
     TweenService:Create(IntroText, TweenInfo.new(0.5, Enum.EasingStyle.Quart), {TextTransparency = 0}):Play()
-    task.wait(1.2)
+    task.wait(1.4)
 
-    -- Fade Out Intro & Cleanup Blur
     TweenService:Create(Logo, TweenInfo.new(0.4), {ImageTransparency = 1}):Play()
     TweenService:Create(IntroText, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
     TweenService:Create(Blur, TweenInfo.new(0.5), {Size = 0}):Play()
@@ -181,39 +173,38 @@ function HexLib:CreateWindow(config)
     IntroFrame:Destroy()
     Blur:Destroy()
 
-    -- Main UI Frame Setup
+    -- Main Frame
     local MainFrame = Instance.new("Frame")
-    MainFrame.Size = UDim2.new(0, 680, 0, 420)
-    MainFrame.Position = UDim2.new(0.5, -340, 0.5, -210)
+    MainFrame.Size = UDim2.new(0, 700, 0, 440)
+    MainFrame.Position = UDim2.new(0.5, -350, 0.5, -220)
     MainFrame.BackgroundColor3 = HexLib.CurrentTheme.Background
     MainFrame.BorderSizePixel = 0
     MainFrame.ClipsDescendants = true
     MainFrame.Parent = Gui
     Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
 
-    -- Multi-Color Gradient Ambient Background
+    -- Ambient Gradient Turning Red
     local AmbientGradient = Instance.new("UIGradient")
     AmbientGradient.Color = ColorSequence.new({
         ColorSequenceKeypoint.new(0, HexLib.CurrentTheme.GradientStart),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(40, 20, 35)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(45, 20, 35)),
         ColorSequenceKeypoint.new(1, HexLib.CurrentTheme.Background)
     })
     AmbientGradient.Rotation = 45
     AmbientGradient.Parent = MainFrame
 
-    -- Slow Animated Red/Theme Gradient Transition
     task.spawn(function()
         local rot = 45
         while MainFrame.Parent do
             rot = (rot + 1) % 360
             AmbientGradient.Rotation = rot
-            task.wait(0.05)
+            task.wait(0.04)
         end
     end)
 
-    -- Sidebar Layout
+    -- Sidebar
     local Sidebar = Instance.new("Frame")
-    Sidebar.Size = UDim2.new(0, 180, 1, 0)
+    Sidebar.Size = UDim2.new(0, 190, 1, 0)
     Sidebar.BackgroundColor3 = HexLib.CurrentTheme.Sidebar
     Sidebar.BorderSizePixel = 0
     Sidebar.Parent = MainFrame
@@ -221,15 +212,15 @@ function HexLib:CreateWindow(config)
 
     local BrandLogo = Instance.new("ImageLabel")
     BrandLogo.Image = HexLib.LogoId
-    BrandLogo.Size = UDim2.new(0, 30, 0, 30)
-    BrandLogo.Position = UDim2.new(0, 15, 0, 15)
+    BrandLogo.Size = UDim2.new(0, 32, 0, 32)
+    BrandLogo.Position = UDim2.new(0, 15, 0, 16)
     BrandLogo.BackgroundTransparency = 1
     BrandLogo.Parent = Sidebar
 
     local TitleLabel = Instance.new("TextLabel")
     TitleLabel.Text = TitleText
-    TitleLabel.Size = UDim2.new(0, 115, 0, 20)
-    TitleLabel.Position = UDim2.new(0, 52, 0, 13)
+    TitleLabel.Size = UDim2.new(0, 120, 0, 20)
+    TitleLabel.Position = UDim2.new(0, 56, 0, 14)
     TitleLabel.TextColor3 = HexLib.CurrentTheme.TextPrimary
     TitleLabel.Font = Enum.Font.SourceSansBold
     TitleLabel.TextSize = 16
@@ -239,8 +230,8 @@ function HexLib:CreateWindow(config)
 
     local SubTitleLabel = Instance.new("TextLabel")
     SubTitleLabel.Text = SubTitleText
-    SubTitleLabel.Size = UDim2.new(0, 115, 0, 15)
-    SubTitleLabel.Position = UDim2.new(0, 52, 0, 31)
+    SubTitleLabel.Size = UDim2.new(0, 120, 0, 15)
+    SubTitleLabel.Position = UDim2.new(0, 56, 0, 32)
     SubTitleLabel.TextColor3 = HexLib.CurrentTheme.TextSecondary
     SubTitleLabel.Font = Enum.Font.SourceSans
     SubTitleLabel.TextSize = 12
@@ -248,10 +239,9 @@ function HexLib:CreateWindow(config)
     SubTitleLabel.BackgroundTransparency = 1
     SubTitleLabel.Parent = Sidebar
 
-    -- Container for Tabs
     local TabHolder = Instance.new("ScrollingFrame")
-    TabHolder.Size = UDim2.new(1, -20, 1, -70)
-    TabHolder.Position = UDim2.new(0, 10, 0, 60)
+    TabHolder.Size = UDim2.new(1, -20, 1, -75)
+    TabHolder.Position = UDim2.new(0, 10, 0, 65)
     TabHolder.BackgroundTransparency = 1
     TabHolder.ScrollBarThickness = 2
     TabHolder.Parent = Sidebar
@@ -261,23 +251,18 @@ function HexLib:CreateWindow(config)
     TabList.Padding = UDim.new(0, 6)
     TabList.Parent = TabHolder
 
-    -- Content Area
     local ContentHolder = Instance.new("Frame")
-    ContentHolder.Size = UDim2.new(1, -195, 1, -20)
-    ContentHolder.Position = UDim2.new(0, 190, 0, 10)
+    ContentHolder.Size = UDim2.new(1, -205, 1, -20)
+    ContentHolder.Position = UDim2.new(0, 200, 0, 10)
     ContentHolder.BackgroundTransparency = 1
     ContentHolder.Parent = MainFrame
 
-    local WindowObj = {
-        Tabs = {},
-        ActiveTab = nil
-    }
+    local WindowObj = { Tabs = {} }
 
-    -- Create Tab Method
     function WindowObj:CreateTab(tabName)
         local TabBtn = Instance.new("TextButton")
         TabBtn.Text = "   " .. tabName
-        TabBtn.Size = UDim2.new(1, 0, 0, 36)
+        TabBtn.Size = UDim2.new(1, 0, 0, 38)
         TabBtn.BackgroundColor3 = HexLib.CurrentTheme.Card
         TabBtn.BackgroundTransparency = 0.8
         TabBtn.TextColor3 = HexLib.CurrentTheme.TextSecondary
@@ -318,7 +303,6 @@ function HexLib:CreateWindow(config)
         local TabElements = {}
         table.insert(WindowObj.Tabs, {Btn = TabBtn, Page = TabPage})
 
-        -- Section Creator
         function TabElements:CreateSection(sectionName)
             local SectionLabel = Instance.new("TextLabel")
             SectionLabel.Text = sectionName
@@ -332,7 +316,6 @@ function HexLib:CreateWindow(config)
 
             local SectionObj = {}
 
-            -- Button Component
             function SectionObj:CreateButton(btnText, callback)
                 local Btn = Instance.new("TextButton")
                 Btn.Text = btnText
@@ -353,7 +336,6 @@ function HexLib:CreateWindow(config)
                 end)
             end
 
-            -- Toggle Component
             function SectionObj:CreateToggle(toggleText, default, callback)
                 local toggled = default or false
                 local Frame = Instance.new("Frame")
@@ -396,18 +378,17 @@ function HexLib:CreateWindow(config)
                 end)
             end
 
-            -- Slider Component
             function SectionObj:CreateSlider(sliderText, min, max, default, callback)
                 local val = default or min
                 local Frame = Instance.new("Frame")
-                Frame.Size = UDim2.new(1, -10, 0, 50)
+                Frame.Size = UDim2.new(1, -10, 0, 52)
                 Frame.BackgroundColor3 = HexLib.CurrentTheme.Card
                 Frame.Parent = TabPage
                 Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 8)
 
                 local Label = Instance.new("TextLabel")
                 Label.Text = "   " .. sliderText .. " [" .. tostring(val) .. "]"
-                Label.Size = UDim2.new(1, 0, 0, 25)
+                Label.Size = UDim2.new(1, 0, 0, 26)
                 Label.TextColor3 = HexLib.CurrentTheme.TextPrimary
                 Label.Font = Enum.Font.SourceSans
                 Label.TextSize = 14
@@ -446,7 +427,89 @@ function HexLib:CreateWindow(config)
                 end)
             end
 
-            -- Dropdown Component with Refresh Option
+            function SectionObj:CreateTextbox(textboxText, placeholder, callback)
+                local Frame = Instance.new("Frame")
+                Frame.Size = UDim2.new(1, -10, 0, 48)
+                Frame.BackgroundColor3 = HexLib.CurrentTheme.Card
+                Frame.Parent = TabPage
+                Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 8)
+
+                local Label = Instance.new("TextLabel")
+                Label.Text = "   " .. textboxText
+                Label.Size = UDim2.new(0.4, 0, 1, 0)
+                Label.TextColor3 = HexLib.CurrentTheme.TextPrimary
+                Label.Font = Enum.Font.SourceSans
+                Label.TextSize = 14
+                Label.TextXAlignment = Enum.TextXAlignment.Left
+                Label.BackgroundTransparency = 1
+                Label.Parent = Frame
+
+                local Box = Instance.new("TextBox")
+                Box.PlaceholderText = placeholder or "Type here..."
+                Box.Size = UDim2.new(0.55, 0, 0, 32)
+                Box.Position = UDim2.new(0.42, 0, 0.5, -16)
+                Box.BackgroundColor3 = HexLib.CurrentTheme.Container
+                Box.TextColor3 = HexLib.CurrentTheme.TextPrimary
+                Box.PlaceholderColor3 = HexLib.CurrentTheme.TextSecondary
+                Box.Font = Enum.Font.SourceSans
+                Box.TextSize = 13
+                Box.Parent = Frame
+                Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 6)
+
+                Box.FocusLost:Connect(function(enterPressed)
+                    if enterPressed and callback then callback(Box.Text) end
+                end)
+            end
+
+            function SectionObj:CreateKeybind(keybindText, defaultKey, callback)
+                local selectedKey = defaultKey or Enum.KeyCode.F
+                local Frame = Instance.new("Frame")
+                Frame.Size = UDim2.new(1, -10, 0, 40)
+                Frame.BackgroundColor3 = HexLib.CurrentTheme.Card
+                Frame.Parent = TabPage
+                Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 8)
+
+                local Label = Instance.new("TextLabel")
+                Label.Text = "   " .. keybindText
+                Label.Size = UDim2.new(0.6, 0, 1, 0)
+                Label.TextColor3 = HexLib.CurrentTheme.TextPrimary
+                Label.Font = Enum.Font.SourceSans
+                Label.TextSize = 14
+                Label.TextXAlignment = Enum.TextXAlignment.Left
+                Label.BackgroundTransparency = 1
+                Label.Parent = Frame
+
+                local KeyBtn = Instance.new("TextButton")
+                KeyBtn.Text = selectedKey.Name
+                KeyBtn.Size = UDim2.new(0, 90, 0, 26)
+                KeyBtn.Position = UDim2.new(1, -100, 0.5, -13)
+                KeyBtn.BackgroundColor3 = HexLib.CurrentTheme.Container
+                KeyBtn.TextColor3 = HexLib.CurrentTheme.Accent
+                KeyBtn.Font = Enum.Font.SourceSansBold
+                KeyBtn.TextSize = 13
+                KeyBtn.Parent = Frame
+                Instance.new("UICorner", KeyBtn).CornerRadius = UDim.new(0, 6)
+
+                local binding = false
+                KeyBtn.MouseButton1Click:Connect(function()
+                    PlaySound(6895079853, 1.0)
+                    binding = true
+                    KeyBtn.Text = "..."
+                end)
+
+                UserInputService.InputBegan:Connect(function(input, gp)
+                    if binding then
+                        if input.UserInputType == Enum.UserInputType.Keyboard then
+                            selectedKey = input.KeyCode
+                            KeyBtn.Text = selectedKey.Name
+                            binding = false
+                        end
+                    elseif not gp and input.KeyCode == selectedKey then
+                        if callback then callback(selectedKey) end
+                    end
+                end)
+            end
+
             function SectionObj:CreateDropdown(dropdownText, options, callback)
                 local DropFrame = Instance.new("Frame")
                 DropFrame.Size = UDim2.new(1, -10, 0, 40)
